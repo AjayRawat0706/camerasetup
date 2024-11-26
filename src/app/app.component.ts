@@ -61,15 +61,24 @@ export class AppComponent implements OnInit {
     // Apply aspect ratio style to the video element
     this.videoElement.style.width = `${videoWidth}px`;
     this.videoElement.style.height = `${videoHeight}px`;
-    this.videoElement.style.objectFit = 'cover'; // Ensures the video is cropped
+    this.videoElement.style.objectFit = 'cover'; // Ensures the video is cropped to fit the container
   }
 
   // Capture the image from the video feed using html2canvas
   captureImage() {
-    const videoContainer = document.querySelector('#video-container') as HTMLElement; // Cast to HTMLElement
+    const videoContainer = document.querySelector('#video-container') as HTMLElement;
 
-    // Ensure html2canvas receives an HTMLElement
-    html2canvas(videoContainer).then((canvas) => {
+    // Get the size of the video container (the visible portion of the video)
+    const containerWidth = videoContainer.offsetWidth;
+    const containerHeight = videoContainer.offsetHeight;
+
+    // Ensure html2canvas captures the visible part of the video
+    html2canvas(videoContainer, {
+      width: containerWidth,
+      height: containerHeight,
+      x: 0,
+      y: 0
+    }).then((canvas) => {
       // Capture the canvas as an image
       this.capturedImage = canvas.toDataURL('image/jpeg');
     });
