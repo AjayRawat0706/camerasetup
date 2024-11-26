@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import html2canvas from 'html2canvas'; // Import html2canvas
 
 @Component({
   selector: 'app-root',
@@ -16,6 +15,7 @@ export class AppComponent implements OnInit {
   selectedAspectRatio: string = '4:3'; // Default aspect ratio
   capturedImage: string | null = null;
 
+  // Define aspect ratio map
   aspectRatioMap: any = {
     '4:3': { width: 4, height: 3 },
     '16:9': { width: 16, height: 9 },
@@ -26,6 +26,7 @@ export class AppComponent implements OnInit {
     this.setupCamera();
   }
 
+  // Setup camera to stream video
   setupCamera() {
     const constraints = {
       video: {
@@ -52,7 +53,7 @@ export class AppComponent implements OnInit {
     this.updateVideoAspectRatio();
   }
 
-  // Update video element based on the selected aspect ratio
+  // Update video size based on selected aspect ratio
   updateVideoAspectRatio() {
     const aspect = this.aspectRatioMap[this.selectedAspectRatio];
     const videoWidth = window.innerWidth * 0.9; // 90% of screen width
@@ -64,24 +65,29 @@ export class AppComponent implements OnInit {
     this.videoElement.style.objectFit = 'cover'; // Ensures the video is cropped to fit the container
   }
 
-  // Capture the image from the video feed using html2canvas
+  // Capture the image from the video feed
   captureImage() {
-    const videoContainer = document.querySelector('#video-container') as HTMLElement;
+    // Create a canvas to draw the captured image
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
 
-    // Get the size of the video container (the visible portion of the video)
+    // Get the video container dimensions (the visible part)
+    const videoContainer = document.querySelector('#video-container') as HTMLElement;
     const containerWidth = videoContainer.offsetWidth;
     const containerHeight = videoContainer.offsetHeight;
 
-    // Ensure html2canvas captures the visible part of the video
-    html2canvas(videoContainer, {
-      width: containerWidth,
-      height: containerHeight,
-      x: 0,
-      y: 0
-    }).then((canvas) => {
-      // Capture the canvas as an image
+    // Set canvas dimensions to match the visible area of the video
+    canvas.width = containerWidth;
+    canvas.height = containerHeight;
+
+    // Ensure the context is available
+    if (context) {
+      // Draw the current video frame onto the canvas (capturing the visible portion)
+      context.drawImage(this.videoElement, 0, 0, containerWidth, containerHeight);
+
+      // Convert the canvas content to a data URL (image)
       this.capturedImage = canvas.toDataURL('image/jpeg');
-    });
+    }
   }
 
   // Download the captured image
