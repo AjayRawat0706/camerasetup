@@ -73,7 +73,7 @@ export class AppComponent implements OnInit, AfterViewInit {
 
     const constraints = {
       video: {
-        facingMode: 'user',
+        facingMode: 'environment',
         width: { ideal: idealWidth },
         height: { ideal: idealHeight }
       }
