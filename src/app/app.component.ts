@@ -25,7 +25,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     // Set the camera resolution and constraints
     const constraints = {
       video: {
-        facingMode: 'user',
+        facingMode: 'environment',
         width: { ideal: 1280 },  // Ideal width
         height: { ideal: 720 }   // Ideal height
       }
