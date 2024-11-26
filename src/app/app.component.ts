@@ -1,11 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, AfterViewInit } from '@angular/core';
-import { FormsModule } from '@angular/forms'; 
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-root',
   standalone: true,  // Standalone component
-  imports: [FormsModule,CommonModule],  // Import FormsModule for ngModel
+  imports: [FormsModule, CommonModule],  // Import FormsModule for ngModel
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
