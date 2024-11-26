@@ -1,9 +1,12 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { FormsModule } from '@angular/forms'; 
 
 @Component({
+  standalone:true,
   selector: 'app-root',
   templateUrl: './app.component.html',
+  imports: [ FormsModule, CommonModule],
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit, AfterViewInit {
