@@ -35,7 +35,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   public capture(): void {
     const context = this.canvas.nativeElement.getContext("2d");
     if (context) {
-      context.drawImage(this.video.nativeElement, 0, 0, 640, 480);
+      context.drawImage(this.video.nativeElement, 0, 0, 600, 400);
       this.captures.push(this.canvas.nativeElement.toDataURL("image/png"));
     }
   }
