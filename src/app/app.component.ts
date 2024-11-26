@@ -102,16 +102,25 @@ export class AppComponent implements OnInit, AfterViewInit {
   captureImage() {
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
-    const aspectRatio = this.selectedAspectRatio.split(':');
-    const width = 640;  // Fixed width for capturing image
-    const height = (width * parseInt(aspectRatio[1])) / parseInt(aspectRatio[0]);
 
+    // Get the video element's size and position
+    const videoRect = this.videoElement.getBoundingClientRect();
+    
+    // Extract the visible region of the video element (taking into account the objectFit cropping)
+    const width = videoRect.width;
+    const height = videoRect.height;
+
+    // Set the canvas size to match the visible part of the video
     canvas.width = width;
     canvas.height = height;
 
     if (context) {
-      // Draw the current video frame onto the canvas using the correct aspect ratio
-      context.drawImage(this.videoElement, 0, 0, width, height);
+      // Draw only the visible portion of the video onto the canvas
+      context.drawImage(this.videoElement, 
+                        videoRect.x, videoRect.y, width, height, 
+                        0, 0, width, height); // This ensures we capture only the visible part
+
+      // Store the captured image as a data URL
       this.capturedImage = canvas.toDataURL('image/jpeg');
     } else {
       console.error('Canvas context is unavailable.');
