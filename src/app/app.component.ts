@@ -1,21 +1,19 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [FormsModule,CommonModule],
+  imports: [FormsModule],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, AfterViewInit {
   videoElement!: HTMLVideoElement;
   stream!: MediaStream;
   selectedAspectRatio: string = '4:3'; // Default aspect ratio
   capturedImage: string | null = null;
   
-  // Mapping aspect ratios to width/height values
   aspectRatioMap: any = {
     '4:3': { width: 4, height: 3 },
     '16:9': { width: 16, height: 9 },
@@ -25,6 +23,8 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     this.setupCamera();
   }
+
+  ngAfterViewInit() {}
 
   setupCamera() {
     const constraints = {
@@ -40,7 +40,7 @@ export class AppComponent implements OnInit {
         this.stream = stream;
         this.videoElement = document.querySelector('#video')!;
         this.videoElement.srcObject = stream;
-        this.updateVideoAspectRatio(); // Set initial aspect ratio
+        this.updateVideoAspectRatio();
       })
       .catch((error) => {
         console.error('Error accessing the camera: ', error);
@@ -51,7 +51,6 @@ export class AppComponent implements OnInit {
     this.updateVideoAspectRatio();
   }
 
-  // Update the video size based on the selected aspect ratio
   updateVideoAspectRatio() {
     const aspect = this.aspectRatioMap[this.selectedAspectRatio];
     const videoWidth = window.innerWidth * 0.9; // 90% of screen width
@@ -60,10 +59,9 @@ export class AppComponent implements OnInit {
     // Apply aspect ratio style to the video element
     this.videoElement.style.width = `${videoWidth}px`;
     this.videoElement.style.height = `${videoHeight}px`;
-    this.videoElement.style.objectFit = 'cover'; // Ensures the video is cropped to fit the container
+    this.videoElement.style.objectFit = 'cover'; // Crop the video to maintain aspect ratio
   }
 
-  // Capture the image from the video feed using the canvas
   captureImage() {
     const videoContainer = document.querySelector('#video') as HTMLElement;
     const containerWidth = videoContainer.offsetWidth;
@@ -84,7 +82,6 @@ export class AppComponent implements OnInit {
     }
   }
 
-  // Download the captured image
   downloadImage() {
     if (this.capturedImage) {
       const link = document.createElement('a');
