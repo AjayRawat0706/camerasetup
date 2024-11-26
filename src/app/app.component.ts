@@ -12,10 +12,9 @@ import { FormsModule } from '@angular/forms';
 export class AppComponent implements OnInit {
   videoElement!: HTMLVideoElement;
   stream!: MediaStream;
+  mediaRecorder!: MediaRecorder;
   selectedAspectRatio: string = '4:3'; // Default aspect ratio
   capturedImage: string | null = null;
-
-  // Define aspect ratio map
   aspectRatioMap: any = {
     '4:3': { width: 4, height: 3 },
     '16:9': { width: 16, height: 9 },
@@ -26,7 +25,6 @@ export class AppComponent implements OnInit {
     this.setupCamera();
   }
 
-  // Setup camera to stream video
   setupCamera() {
     const constraints = {
       video: {
@@ -48,12 +46,11 @@ export class AppComponent implements OnInit {
       });
   }
 
-  // Change aspect ratio based on selection
   changeAspectRatio() {
     this.updateVideoAspectRatio();
   }
 
-  // Update video size based on selected aspect ratio
+  // Update the video size based on the selected aspect ratio
   updateVideoAspectRatio() {
     const aspect = this.aspectRatioMap[this.selectedAspectRatio];
     const videoWidth = window.innerWidth * 0.9; // 90% of screen width
@@ -65,26 +62,25 @@ export class AppComponent implements OnInit {
     this.videoElement.style.objectFit = 'cover'; // Ensures the video is cropped to fit the container
   }
 
-  // Capture the image from the video feed
+  // Capture the image from the video feed using MediaRecorder
   captureImage() {
     // Create a canvas to draw the captured image
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
 
-    // Get the video container dimensions (the visible part)
-    const videoContainer = document.querySelector('#video-container') as HTMLElement;
+    // Get the visible video area (container width and height)
+    const videoContainer = document.querySelector('#video') as HTMLElement;
     const containerWidth = videoContainer.offsetWidth;
     const containerHeight = videoContainer.offsetHeight;
 
-    // Set canvas dimensions to match the visible area of the video
+    // Set canvas size to match visible video size
     canvas.width = containerWidth;
     canvas.height = containerHeight;
 
-    // Ensure the context is available
+    // Ensure we are drawing the visible part of the video
     if (context) {
-      // Draw the current video frame onto the canvas (capturing the visible portion)
+      // Draw the current frame of the video onto the canvas
       context.drawImage(this.videoElement, 0, 0, containerWidth, containerHeight);
-
       // Convert the canvas content to a data URL (image)
       this.capturedImage = canvas.toDataURL('image/jpeg');
     }
