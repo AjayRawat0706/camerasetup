@@ -1,26 +1,17 @@
-<div>
-  <!-- Video element to display the camera stream -->
-  <video id="video" autoplay></video>
-  <br>
-
-  <!-- Aspect Ratio Selection Dropdown -->
-  <label for="aspect-ratio">Select Aspect Ratio:</label>
-  <select [(ngModel)]="selectedAspectRatio" (change)="changeAspectRatio()" id="aspect-ratio">
-    <option value="4:3">4:3</option>
+<div class="aspect-ratio-selector">
+  <label for="aspect-ratio">Select Aspect Ratio</label>
+  <select id="aspect-ratio" [(ngModel)]="selectedAspectRatio" (change)="updateAspectRatio()">
     <option value="16:9">16:9</option>
+    <option value="4:3">4:3</option>
     <option value="1:1">1:1</option>
   </select>
-  <br>
+</div>
 
-  <!-- Capture Button -->
-  <button (click)="captureImage()">Capture Image</button>
-  
-  <!-- Display captured image below the video -->
-  <div *ngIf="capturedImage">
-    <h3>Captured Image:</h3>
-    <img [src]="capturedImage" alt="Captured Image" style="max-width: 100%; height: auto;">
-    <br>
-    <!-- Download Button -->
-    <button (click)="downloadImage()">Download Image</button>
-  </div>
+<video #videoElement class="video" autoplay></video>
+
+<canvas #canvas width="640" height="480"></canvas>
+
+<div class="controls">
+  <button (click)="captureImage()">Capture</button>
+  <button (click)="downloadImage()">Download Image</button>
 </div>
