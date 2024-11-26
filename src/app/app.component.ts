@@ -114,7 +114,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     if (context) {
       // Draw only the visible portion of the video onto the canvas
       context.drawImage(this.videoElement, 
-                        videoRect.x, videoRect.y, width, height, 
+                        0, 0, width, height, 
                         0, 0, width, height); // This ensures we capture only the visible part
 
       // Store the captured image as a data URL
