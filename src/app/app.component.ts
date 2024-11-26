@@ -12,9 +12,10 @@ import { FormsModule } from '@angular/forms';
 export class AppComponent implements OnInit {
   videoElement!: HTMLVideoElement;
   stream!: MediaStream;
-  mediaRecorder!: MediaRecorder;
   selectedAspectRatio: string = '4:3'; // Default aspect ratio
   capturedImage: string | null = null;
+  
+  // Mapping aspect ratios to width/height values
   aspectRatioMap: any = {
     '4:3': { width: 4, height: 3 },
     '16:9': { width: 16, height: 9 },
@@ -62,26 +63,23 @@ export class AppComponent implements OnInit {
     this.videoElement.style.objectFit = 'cover'; // Ensures the video is cropped to fit the container
   }
 
-  // Capture the image from the video feed using MediaRecorder
+  // Capture the image from the video feed using the canvas
   captureImage() {
-    // Create a canvas to draw the captured image
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
-
-    // Get the visible video area (container width and height)
     const videoContainer = document.querySelector('#video') as HTMLElement;
     const containerWidth = videoContainer.offsetWidth;
     const containerHeight = videoContainer.offsetHeight;
 
-    // Set canvas size to match visible video size
+    // Create a canvas to capture the visible part of the video
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+
+    // Set the canvas size to match the visible video size
     canvas.width = containerWidth;
     canvas.height = containerHeight;
 
     // Ensure we are drawing the visible part of the video
     if (context) {
-      // Draw the current frame of the video onto the canvas
       context.drawImage(this.videoElement, 0, 0, containerWidth, containerHeight);
-      // Convert the canvas content to a data URL (image)
       this.capturedImage = canvas.toDataURL('image/jpeg');
     }
   }

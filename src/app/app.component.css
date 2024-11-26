@@ -1,20 +1,5 @@
-/* video {
-    width: 100%;  
-    max-width: 640px;
-    height: auto;
-    border: 1px solid #ccc;
-  }
-  
-  button {
-    margin-top: 20px;
-    padding: 10px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    cursor: pointer;
-  }
-  
-  button:hover {
-    background-color: #45a049;
-  } */
-  
+/* Ensure the video element has a fixed size with proper aspect ratio */
+#video {
+  display: block;
+  margin: 0 auto;
+}
