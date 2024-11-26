@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -8,7 +9,7 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit, AfterViewInit {
+export class AppComponent implements OnInit {
   videoElement!: HTMLVideoElement;
   stream!: MediaStream;
   selectedAspectRatio: string = '4:3'; // Default aspect ratio
@@ -25,8 +26,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.setupCamera();
   }
 
-  ngAfterViewInit() {}
-
+  // Set up the camera stream
   setupCamera() {
     const constraints = {
       video: {
@@ -48,13 +48,12 @@ export class AppComponent implements OnInit, AfterViewInit {
       });
   }
 
-  // Change aspect ratio
-  changeAspectRatio(ratio: string) {
-    this.selectedAspectRatio = ratio;
+  // Change aspect ratio based on selection
+  changeAspectRatio() {
     this.updateVideoAspectRatio();
   }
 
-  // Update video element style based on selected aspect ratio
+  // Update the video element based on the selected aspect ratio
   updateVideoAspectRatio() {
     const aspect = this.aspectRatioMap[this.selectedAspectRatio];
     const videoWidth = window.innerWidth * 0.9; // 90% of screen width
@@ -84,7 +83,7 @@ export class AppComponent implements OnInit, AfterViewInit {
       });
   }
 
-  // Capture the image based on the current aspect ratio
+  // Capture the image from the video feed
   captureImage() {
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
@@ -94,19 +93,20 @@ export class AppComponent implements OnInit, AfterViewInit {
       return;
     }
 
+    // Get the current aspect ratio
     const aspect = this.aspectRatioMap[this.selectedAspectRatio];
-    const videoRect = this.videoElement.getBoundingClientRect();
 
-    // The canvas will have the exact width and height of the video element (cropped)
+    // Capture only the visible part of the video element
+    const videoRect = this.videoElement.getBoundingClientRect();
     const width = videoRect.width;
     const height = Math.floor((width * aspect.height) / aspect.width);
     canvas.width = width;
     canvas.height = height;
 
-    // Draw only the visible portion of the video element
+    // Draw the video frame to the canvas
     context.drawImage(this.videoElement, 0, 0, width, height, 0, 0, width, height);
-    
-    // Save the captured image as a data URL
+
+    // Convert the canvas to an image
     this.capturedImage = canvas.toDataURL('image/jpeg');
   }
 
