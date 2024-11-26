@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { FormsModule } from '@angular/forms'; 
+
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule,FormsModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'] // Corrected to 'styleUrls'
 })
@@ -12,6 +13,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   videoElement!: HTMLVideoElement;
   stream!: MediaStream;
   selectedAspectRatio: string = '4:3'; // Default aspect ratio
+  capturedImage: string | null = null; // Variable to hold captured image data
 
   ngOnInit() {
     // Setup the camera stream when component is initialized
@@ -62,8 +64,8 @@ export class AppComponent implements OnInit, AfterViewInit {
       context.drawImage(this.videoElement, 0, 0, width, height);
 
       // Convert the canvas to base64 image data
-      const imageData = canvas.toDataURL('image/jpeg');
-      console.log(imageData); // Use this image data as needed (e.g., save or display)
+      this.capturedImage = canvas.toDataURL('image/jpeg');
+      console.log(this.capturedImage); // Use this image data as needed (e.g., save or display)
     } else {
       console.error('Canvas context is unavailable.');
     }
@@ -72,5 +74,15 @@ export class AppComponent implements OnInit, AfterViewInit {
   changeAspectRatio(ratio: string) {
     // Update the selected aspect ratio when the user selects a new option
     this.selectedAspectRatio = ratio;
+  }
+
+  downloadImage() {
+    // Create a link element to trigger the download of the captured image
+    if (this.capturedImage) {
+      const link = document.createElement('a');
+      link.href = this.capturedImage;
+      link.download = 'captured_image.jpg'; // Set the file name for the download
+      link.click(); // Trigger the download
+    }
   }
 }

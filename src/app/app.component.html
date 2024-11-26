@@ -16,4 +16,13 @@
 
   <!-- Capture Button -->
   <button (click)="captureImage()">Capture Image</button>
+  
+  <!-- Display captured image below the video -->
+  <div *ngIf="capturedImage">
+    <h3>Captured Image:</h3>
+    <img [src]="capturedImage" alt="Captured Image" style="max-width: 100%; height: auto;">
+    <br>
+    <!-- Download Button -->
+    <button (click)="downloadImage()">Download Image</button>
+  </div>
 </div>
