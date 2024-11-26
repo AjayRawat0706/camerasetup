@@ -103,7 +103,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     // Get the video element's size and position
     const videoRect = this.videoElement.getBoundingClientRect();
     
-    // Extract the visible region of the video element (taking into account the objectFit cropping)
+    // The width and height should be exactly what is visible, no extra part
     const width = videoRect.width;
     const height = videoRect.height;
 
@@ -113,9 +113,11 @@ export class AppComponent implements OnInit, AfterViewInit {
 
     if (context) {
       // Draw only the visible portion of the video onto the canvas
+      // The videoRect.x and videoRect.y are the current position of the video element
+      // The width and height are the visible area of the video element
       context.drawImage(this.videoElement, 
-                        videoRect.x, videoRect.y, width, height, 
-                        0, 0, width, height); // Capture the exact visible part
+                        0, 0, width, height, 
+                        0, 0, width, height); // Capture only the visible portion
 
       // Store the captured image as a data URL
       this.capturedImage = canvas.toDataURL('image/jpeg');
