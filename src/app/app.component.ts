@@ -68,14 +68,21 @@ export class AppComponent implements OnInit, AfterViewInit {
         aspectRatioHeight = 9;
     }
 
-    const idealWidth = 1280;
-    const idealHeight = Math.floor((idealWidth * aspectRatioHeight) / aspectRatioWidth);
+    // Set fixed video size for mobile screen
+    const videoWidth = window.innerWidth * 0.9; // 90% of screen width
+    const videoHeight = Math.floor((videoWidth * aspectRatioHeight) / aspectRatioWidth);
 
+    // Apply this size to video element and update the stream
+    this.videoElement.style.width = `${videoWidth}px`;
+    this.videoElement.style.height = `${videoHeight}px`;
+    this.videoElement.style.objectFit = 'cover';  // Ensures the video is cropped as per aspect ratio
+
+    // Update the constraints to reflect the aspect ratio
     const constraints = {
       video: {
         facingMode: 'environment',
-        width: { ideal: idealWidth },
-        height: { ideal: idealHeight }
+        width: { ideal: videoWidth },
+        height: { ideal: videoHeight }
       }
     };
 
@@ -83,20 +90,10 @@ export class AppComponent implements OnInit, AfterViewInit {
       .then((stream) => {
         this.stream = stream;
         this.videoElement.srcObject = stream;
-        this.updateVideoElementStyle(idealWidth, idealHeight);
       })
       .catch((error) => {
-        console.error('Error updating the camera constraints: ', error);
+        console.error('Error accessing the camera: ', error);
       });
-  }
-
-  updateVideoElementStyle(width: number, height: number) {
-    // Apply CSS to the video element to ensure it maintains the selected aspect ratio
-    this.videoElement.style.width = `${width}px`;
-    this.videoElement.style.height = `${height}px`;
-
-    // Make sure the video fits the aspect ratio
-    this.videoElement.style.objectFit = 'cover';  // Ensures the video is properly cropped or fit
   }
 
   captureImage() {
