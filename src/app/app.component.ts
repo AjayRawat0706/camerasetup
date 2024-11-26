@@ -1,11 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, AfterViewInit } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms'; 
 
 @Component({
   selector: 'app-root',
-  standalone: true,
-  imports: [FormsModule, CommonModule],  // Import FormsModule for ngModel
+  standalone: true,  // Standalone component
+  imports: [FormsModule,CommonModule],  // Import FormsModule for ngModel
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
@@ -14,35 +14,20 @@ export class AppComponent implements OnInit, AfterViewInit {
   stream!: MediaStream;
   selectedAspectRatio: string = '4:3'; // Default aspect ratio
   capturedImage: string | null = null; // Variable to hold captured image data
-  currentCamera: string = 'user'; // Default to front camera
-  mediaDevices: MediaDeviceInfo[] = []; // Store available media devices
 
   ngOnInit() {
     this.setupCamera();
-    this.getMediaDevices();
   }
 
   ngAfterViewInit() {}
 
-  // Get all media devices (including cameras)
-  getMediaDevices() {
-    navigator.mediaDevices.enumerateDevices()
-      .then(devices => {
-        this.mediaDevices = devices.filter(device => device.kind === 'videoinput');
-        console.log('Available cameras: ', this.mediaDevices);
-      })
-      .catch(error => {
-        console.error('Error getting media devices:', error);
-      });
-  }
-
-  // Setup the camera with the initial constraints (front camera)
   setupCamera() {
+    // Set the camera resolution and constraints
     const constraints = {
       video: {
-        facingMode: this.currentCamera,  // Default to front camera
-        width: { ideal: 1280 },
-        height: { ideal: 720 }
+        facingMode: 'user',
+        width: { ideal: 1280 },  // Ideal width
+        height: { ideal: 720 }   // Ideal height
       }
     };
 
@@ -51,20 +36,18 @@ export class AppComponent implements OnInit, AfterViewInit {
         this.stream = stream;
         this.videoElement = document.querySelector('video')!;
         this.videoElement.srcObject = stream;
-        this.updateVideoAspectRatio();
+        this.updateVideoAspectRatio(); // Adjust the aspect ratio on stream start
       })
       .catch((error) => {
         console.error('Error accessing the camera: ', error);
       });
   }
 
-  // Change the aspect ratio when the user selects a different ratio
   changeAspectRatio(ratio: string) {
     this.selectedAspectRatio = ratio;
     this.updateVideoAspectRatio();
   }
 
-  // Update video element dimensions based on the selected aspect ratio
   updateVideoAspectRatio() {
     let aspectRatioWidth, aspectRatioHeight;
     switch (this.selectedAspectRatio) {
@@ -90,7 +73,7 @@ export class AppComponent implements OnInit, AfterViewInit {
 
     const constraints = {
       video: {
-        facingMode: this.currentCamera,
+        facingMode: 'user',
         width: { ideal: idealWidth },
         height: { ideal: idealHeight }
       }
@@ -98,7 +81,6 @@ export class AppComponent implements OnInit, AfterViewInit {
 
     navigator.mediaDevices.getUserMedia(constraints)
       .then((stream) => {
-        this.stream.getTracks().forEach(track => track.stop());  // Stop the current stream
         this.stream = stream;
         this.videoElement.srcObject = stream;
         this.updateVideoElementStyle(idealWidth, idealHeight);
@@ -108,45 +90,34 @@ export class AppComponent implements OnInit, AfterViewInit {
       });
   }
 
-  // Apply styles to ensure the video fits the selected aspect ratio
   updateVideoElementStyle(width: number, height: number) {
+    // Apply CSS to the video element to ensure it maintains the selected aspect ratio
     this.videoElement.style.width = `${width}px`;
     this.videoElement.style.height = `${height}px`;
-    this.videoElement.style.objectFit = 'cover'; // Avoid stretching or distortion
+
+    // Make sure the video fits the aspect ratio
+    this.videoElement.style.objectFit = 'cover';  // Ensures the video is properly cropped or fit
   }
 
-  // Switch between front and back camera
-  switchCamera() {
-    this.currentCamera = this.currentCamera === 'user' ? 'environment' : 'user'; // Toggle between front and back cameras
-    this.setupCamera();  // Restart camera with the new facing mode
-  }
-
-  // Capture image from the video feed and store it as base64 string
   captureImage() {
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
     const aspectRatio = this.selectedAspectRatio.split(':');
-    const width = this.videoElement.videoWidth; // Use the current video width
+    const width = 640;  // Fixed width for capturing image
     const height = (width * parseInt(aspectRatio[1])) / parseInt(aspectRatio[0]);
 
     canvas.width = width;
     canvas.height = height;
 
     if (context) {
-      // Draw the visible portion of the video (only the part shown in the video element)
-      const videoRect = this.videoElement.getBoundingClientRect();
-      context.drawImage(
-        this.videoElement,
-        videoRect.x, videoRect.y, videoRect.width, videoRect.height, // Crop the video to match the visible portion
-        0, 0, width, height // Draw the cropped video onto the canvas
-      );
+      // Draw the current video frame onto the canvas using the correct aspect ratio
+      context.drawImage(this.videoElement, 0, 0, width, height);
       this.capturedImage = canvas.toDataURL('image/jpeg');
     } else {
       console.error('Canvas context is unavailable.');
     }
   }
 
-  // Download the captured image
   downloadImage() {
     if (this.capturedImage) {
       const link = document.createElement('a');
