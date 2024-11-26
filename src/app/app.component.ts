@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import html2canvas from 'html2canvas'; // Import html2canvas
 
 @Component({
   selector: 'app-root',
@@ -15,7 +16,6 @@ export class AppComponent implements OnInit {
   selectedAspectRatio: string = '4:3'; // Default aspect ratio
   capturedImage: string | null = null;
 
-  // Aspect ratio mappings for width/height ratios
   aspectRatioMap: any = {
     '4:3': { width: 4, height: 3 },
     '16:9': { width: 16, height: 9 },
@@ -26,7 +26,6 @@ export class AppComponent implements OnInit {
     this.setupCamera();
   }
 
-  // Set up the camera stream
   setupCamera() {
     const constraints = {
       video: {
@@ -53,7 +52,7 @@ export class AppComponent implements OnInit {
     this.updateVideoAspectRatio();
   }
 
-  // Update the video element based on the selected aspect ratio
+  // Update video element based on the selected aspect ratio
   updateVideoAspectRatio() {
     const aspect = this.aspectRatioMap[this.selectedAspectRatio];
     const videoWidth = window.innerWidth * 0.9; // 90% of screen width
@@ -63,51 +62,17 @@ export class AppComponent implements OnInit {
     this.videoElement.style.width = `${videoWidth}px`;
     this.videoElement.style.height = `${videoHeight}px`;
     this.videoElement.style.objectFit = 'cover'; // Ensures the video is cropped
-
-    // Update constraints to match aspect ratio
-    const constraints = {
-      video: {
-        facingMode: 'environment',
-        width: { ideal: videoWidth },
-        height: { ideal: videoHeight }
-      }
-    };
-
-    navigator.mediaDevices.getUserMedia(constraints)
-      .then((stream) => {
-        this.stream = stream;
-        this.videoElement.srcObject = stream;
-      })
-      .catch((error) => {
-        console.error('Error updating camera constraints: ', error);
-      });
   }
 
-  // Capture the image from the video feed
+  // Capture the image from the video feed using html2canvas
   captureImage() {
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
+    const videoContainer = document.querySelector('#video-container') as HTMLElement; // Cast to HTMLElement
 
-    if (!context) {
-      console.error('Canvas context is unavailable.');
-      return;
-    }
-
-    // Get the current aspect ratio
-    const aspect = this.aspectRatioMap[this.selectedAspectRatio];
-
-    // Capture only the visible part of the video element
-    const videoRect = this.videoElement.getBoundingClientRect();
-    const width = videoRect.width;
-    const height = Math.floor((width * aspect.height) / aspect.width);
-    canvas.width = width;
-    canvas.height = height;
-
-    // Draw the video frame to the canvas
-    context.drawImage(this.videoElement, 0, 0, width, height, 0, 0, width, height);
-
-    // Convert the canvas to an image
-    this.capturedImage = canvas.toDataURL('image/jpeg');
+    // Ensure html2canvas receives an HTMLElement
+    html2canvas(videoContainer).then((canvas) => {
+      // Capture the canvas as an image
+      this.capturedImage = canvas.toDataURL('image/jpeg');
+    });
   }
 
   // Download the captured image
