@@ -1,12 +1,11 @@
-import { CommonModule } from '@angular/common';
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { FormsModule } from '@angular/forms'; 
 
 @Component({
-  standalone:true,
   selector: 'app-root',
+  standalone: true,  // Standalone component
+  imports: [FormsModule],  // Import FormsModule for ngModel
   templateUrl: './app.component.html',
-  imports: [ FormsModule, CommonModule],
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit, AfterViewInit {
@@ -25,16 +24,15 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   setupCamera() {
-    // Default camera resolution (can be updated based on selected ratio later)
+    // Default camera resolution (ideal resolution)
     const constraints = {
       video: {
         facingMode: 'user',
-        width: { ideal: 1280 },  // Ideal width for the camera
-        height: { ideal: 720 }   // Ideal height for the camera
+        width: { ideal: 1280 },  // Ideal width
+        height: { ideal: 720 }   // Ideal height
       }
     };
 
-    // Access the user's camera
     navigator.mediaDevices.getUserMedia(constraints)
       .then((stream) => {
         this.stream = stream;
@@ -48,48 +46,53 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   changeAspectRatio(ratio: string) {
-    // Update the selected aspect ratio and adjust the video resolution accordingly
     this.selectedAspectRatio = ratio;
-    this.updateVideoAspectRatio();
+    this.updateVideoAspectRatio(); // Update the aspect ratio when changed
   }
 
   updateVideoAspectRatio() {
-    // Update video constraints based on the selected aspect ratio
+    // Set the video resolution and element size based on the selected aspect ratio
     let width, height;
+    let aspectRatioWidth, aspectRatioHeight;
 
     switch (this.selectedAspectRatio) {
       case '16:9':
-        width = 1280;
-        height = 720;
+        aspectRatioWidth = 16;
+        aspectRatioHeight = 9;
         break;
       case '4:3':
-        width = 1280;
-        height = 960;
+        aspectRatioWidth = 4;
+        aspectRatioHeight = 3;
         break;
       case '1:1':
-        width = 720;
-        height = 720;
+        aspectRatioWidth = 1;
+        aspectRatioHeight = 1;
         break;
       default:
-        width = 1280;
-        height = 720;
+        aspectRatioWidth = 16;
+        aspectRatioHeight = 9;
     }
 
-    // Apply the new constraints
+    // Set the ideal width and height for the camera resolution (ideal resolution)
+    const idealWidth = 1280;
+    const idealHeight = Math.floor((idealWidth * aspectRatioHeight) / aspectRatioWidth);
+
+    // Apply the video constraints for camera feed
     const constraints = {
       video: {
         facingMode: 'user',
-        width: { ideal: width },
-        height: { ideal: height }
+        width: { ideal: idealWidth },
+        height: { ideal: idealHeight }
       }
     };
 
-    // Restart the video stream with the updated constraints
     navigator.mediaDevices.getUserMedia(constraints)
       .then((stream) => {
         this.stream = stream;
         this.videoElement.srcObject = stream;
-        this.updateVideoElementStyle(width, height); // Adjust video element CSS
+
+        // Update the video element size based on the selected aspect ratio
+        this.updateVideoElementStyle(idealWidth, idealHeight);
       })
       .catch((error) => {
         console.error('Error updating the camera constraints: ', error);
@@ -97,9 +100,12 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   updateVideoElementStyle(width: number, height: number) {
-    // Set the video element dimensions to match the selected aspect ratio
+    // Apply CSS to the video element to ensure it maintains the selected aspect ratio
     this.videoElement.style.width = `${width}px`;
     this.videoElement.style.height = `${height}px`;
+
+    // Adjust the object-fit to ensure the video is contained within the given aspect ratio without distortion
+    this.videoElement.style.objectFit = 'cover';  // Ensures the video fits the aspect ratio (may crop)
   }
 
   captureImage() {
@@ -108,7 +114,6 @@ export class AppComponent implements OnInit, AfterViewInit {
     const context = canvas.getContext('2d');
 
     if (context) {
-      // Calculate the width and height for the selected aspect ratio
       const aspectRatio = this.selectedAspectRatio.split(':');
       const width = 640; // Fixed width for capturing image
       const height = (width * parseInt(aspectRatio[1])) / parseInt(aspectRatio[0]);
@@ -116,24 +121,19 @@ export class AppComponent implements OnInit, AfterViewInit {
       canvas.width = width;
       canvas.height = height;
 
-      // Draw the current video frame onto the canvas
       context.drawImage(this.videoElement, 0, 0, width, height);
-
-      // Convert the canvas to base64 image data
       this.capturedImage = canvas.toDataURL('image/jpeg');
-      console.log(this.capturedImage); // Use this image data as needed (e.g., save or display)
     } else {
       console.error('Canvas context is unavailable.');
     }
   }
 
   downloadImage() {
-    // Create a link element to trigger the download of the captured image
     if (this.capturedImage) {
       const link = document.createElement('a');
       link.href = this.capturedImage;
-      link.download = 'captured_image.jpg'; // Set the file name for the download
-      link.click(); // Trigger the download
+      link.download = 'captured_image.jpg';
+      link.click();
     }
   }
 }
