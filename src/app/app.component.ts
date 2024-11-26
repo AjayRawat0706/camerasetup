@@ -1,10 +1,11 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { FormsModule } from '@angular/forms'; 
 
 @Component({
   selector: 'app-root',
   standalone: true,  // Standalone component
-  imports: [FormsModule],  // Import FormsModule for ngModel
+  imports: [FormsModule,CommonModule],  // Import FormsModule for ngModel
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
@@ -15,16 +16,13 @@ export class AppComponent implements OnInit, AfterViewInit {
   capturedImage: string | null = null; // Variable to hold captured image data
 
   ngOnInit() {
-    // Setup the camera stream when component is initialized
     this.setupCamera();
   }
 
-  ngAfterViewInit() {
-    // DOM-dependent initialization can be done here
-  }
+  ngAfterViewInit() {}
 
   setupCamera() {
-    // Default camera resolution (ideal resolution)
+    // Set the camera resolution and constraints
     const constraints = {
       video: {
         facingMode: 'user',
@@ -47,14 +45,11 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   changeAspectRatio(ratio: string) {
     this.selectedAspectRatio = ratio;
-    this.updateVideoAspectRatio(); // Update the aspect ratio when changed
+    this.updateVideoAspectRatio();
   }
 
   updateVideoAspectRatio() {
-    // Set the video resolution and element size based on the selected aspect ratio
-    let width, height;
     let aspectRatioWidth, aspectRatioHeight;
-
     switch (this.selectedAspectRatio) {
       case '16:9':
         aspectRatioWidth = 16;
@@ -73,11 +68,9 @@ export class AppComponent implements OnInit, AfterViewInit {
         aspectRatioHeight = 9;
     }
 
-    // Set the ideal width and height for the camera resolution (ideal resolution)
     const idealWidth = 1280;
     const idealHeight = Math.floor((idealWidth * aspectRatioHeight) / aspectRatioWidth);
 
-    // Apply the video constraints for camera feed
     const constraints = {
       video: {
         facingMode: 'user',
@@ -90,8 +83,6 @@ export class AppComponent implements OnInit, AfterViewInit {
       .then((stream) => {
         this.stream = stream;
         this.videoElement.srcObject = stream;
-
-        // Update the video element size based on the selected aspect ratio
         this.updateVideoElementStyle(idealWidth, idealHeight);
       })
       .catch((error) => {
@@ -104,23 +95,22 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.videoElement.style.width = `${width}px`;
     this.videoElement.style.height = `${height}px`;
 
-    // Adjust the object-fit to ensure the video is contained within the given aspect ratio without distortion
-    this.videoElement.style.objectFit = 'cover';  // Ensures the video fits the aspect ratio (may crop)
+    // Make sure the video fits the aspect ratio
+    this.videoElement.style.objectFit = 'cover';  // Ensures the video is properly cropped or fit
   }
 
   captureImage() {
-    // Create a canvas element to capture the image
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
+    const aspectRatio = this.selectedAspectRatio.split(':');
+    const width = 640;  // Fixed width for capturing image
+    const height = (width * parseInt(aspectRatio[1])) / parseInt(aspectRatio[0]);
+
+    canvas.width = width;
+    canvas.height = height;
 
     if (context) {
-      const aspectRatio = this.selectedAspectRatio.split(':');
-      const width = 640; // Fixed width for capturing image
-      const height = (width * parseInt(aspectRatio[1])) / parseInt(aspectRatio[0]);
-
-      canvas.width = width;
-      canvas.height = height;
-
+      // Draw the current video frame onto the canvas using the correct aspect ratio
       context.drawImage(this.videoElement, 0, 0, width, height);
       this.capturedImage = canvas.toDataURL('image/jpeg');
     } else {
