@@ -1,10 +1,19 @@
-<div id="app">
-  <div><video #video id="video" width="640" height="480" autoplay></video></div>
-  <div><button id="snap" (click)="capture()">Snap Photo</button></div>
-  <canvas #canvas id="canvas" width="640" height="480"></canvas>
-  <ul>
-    <li *ngFor="let c of captures">
-      <img [src]="c" height="50" /> <!-- Binding the captured image source -->
-    </li>
-  </ul>
+<div>
+  <!-- Video element to display camera stream -->
+  <video autoplay></video>
+  <br>
+
+  <!-- Aspect Ratio Selection Dropdown -->
+  <label for="aspect-ratio">Select Aspect Ratio:</label>
+  <select [(ngModel)]="selectedAspectRatio" (change)="changeAspectRatio(selectedAspectRatio)" id="aspect-ratio">
+    <option value="4:3">4:3</option>
+    <option value="16:9">16:9</option>
+    <option value="1:1">1:1</option>
+    <!-- Add more ratios as needed -->
+  </select>
+
+  <br>
+
+  <!-- Capture Button -->
+  <button (click)="captureImage()">Capture Image</button>
 </div>

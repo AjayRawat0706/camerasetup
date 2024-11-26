@@ -1,0 +1,20 @@
+video {
+    width: 100%;  /* Make video full width */
+    max-width: 640px;
+    height: auto;
+    border: 1px solid #ccc;
+  }
+  
+  button {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: #45a049;
+  }
+  
