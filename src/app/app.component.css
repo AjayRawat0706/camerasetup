@@ -1,30 +1,107 @@
+/* Basic styles for the container */
 .camera-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
 }
 
+/* Video container with aspect ratio for mobile */
 .video-wrapper {
   position: relative;
-  width: 640px;  /* Fixed width */
-  height: 480px;  /* Fixed height */
+  width: 100%;  /* Make sure it takes full width */
+  max-width: 100%;  /* Ensure it scales on smaller screens */
+  height: auto;
+  aspect-ratio: 4 / 3; /* Maintain 4:3 aspect ratio for video */
   background-color: #000;
+  margin-bottom: 15px; /* Space between video and buttons */
 }
 
+/* Ensure video covers the container */
 video {
   width: 100%;
   height: 100%;
-  object-fit: cover;  /* Ensures the video covers the container without stretching */
+  object-fit: cover;  /* Maintain aspect ratio */
 }
 
+/* Canvas is hidden, used for capturing image */
 canvas {
   display: none;
 }
 
-img {
-  margin-top: 20px;
+/* Button styles */
+.buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+button {
+  padding: 12px 25px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 18px;
+  transition: background-color 0.3s ease;
+  width: 100%;
+  max-width: 300px;  /* Limit button size for mobile */
+  text-align: center;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+/* Captured image container */
+.captured-image-container {
+  margin-top: 15px;
   max-width: 100%;
+  width: 90%;  /* Ensure image is responsive */
+}
+
+.captured-image-container img {
+  width: 100%; /* Ensure image is responsive and fits container */
+  max-width: 100%;  /* Limit image size to screen width */
   height: auto;
+}
+
+/* Responsive design for small screens */
+@media (max-width: 768px) {
+  /* Adjust the video aspect ratio on smaller screens */
+  .video-wrapper {
+    aspect-ratio: 4 / 3; /* Adjust for better mobile view */
+    width: 100%; /* Full width */
+  }
+
+  button {
+    width: 100%; /* Make buttons full-width on small screens */
+    padding: 10px;
+    font-size: 16px;
+  }
+}
+
+/* For very small screens (portrait mobile) */
+@media (max-width: 480px) {
+  /* Ensure buttons are large enough to tap */
+  button {
+    font-size: 14px;
+    padding: 8px 20px;
+  }
+
+  .video-wrapper {
+    width: 100%;
+    height: auto;
+    max-width: 100%;
+  }
+
+  .captured-image-container {
+    margin-top: 15px;
+  }
 }
