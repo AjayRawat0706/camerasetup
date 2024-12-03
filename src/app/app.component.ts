@@ -71,25 +71,16 @@ export class AppComponent implements OnInit {
     const canvas = this.canvasElement.nativeElement;
     const ctx = canvas.getContext('2d');
 
-    // Get the visible width and height of the video on the screen
-    const videoWidth = video.videoWidth;
-    const videoHeight = video.videoHeight;
-    const aspectRatio = 4 / 3;
-
-    let visibleWidth = videoWidth;
-    let visibleHeight = videoWidth / aspectRatio;
-
-    if (visibleHeight > videoHeight) {
-      visibleHeight = videoHeight;
-      visibleWidth = videoHeight * aspectRatio;
-    }
+    // Get the actual visible size of the video element on screen
+    const videoWidth = video.width;
+    const videoHeight = video.height;
 
     // Set the canvas size to match the visible area of the video
-    canvas.width = visibleWidth;
-    canvas.height = visibleHeight;
+    canvas.width = videoWidth;
+    canvas.height = videoHeight;
 
-    // Draw only the visible area of the video onto the canvas
-    ctx?.drawImage(video, 0, 0, visibleWidth, visibleHeight, 0, 0, visibleWidth, visibleHeight);
+    // Draw the video image on the canvas, using the visible area
+    ctx?.drawImage(video, 0, 0, videoWidth, videoHeight, 0, 0, videoWidth, videoHeight);
 
     // Get the image data URL
     this.capturedImage = canvas.toDataURL('image/png');
