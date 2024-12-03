@@ -23,19 +23,31 @@ export class AppComponent implements OnInit {
   async startCamera() {
     try {
       // Request a video stream with a specific aspect ratio (4:3 for example)
-      const stream = await navigator.mediaDevices.getUserMedia({
+      const constraints = {
         video: {
-          facingMode: 'environment', // Use back camera
-          width: { ideal: 1280 },      // Ideal width
-          height: { ideal: 960 },     // Ideal height for 4:3 aspect ratio
-          aspectRatio: 4 / 3          // Enforce 4:3 aspect ratio
+          facingMode: 'environment', // Use the back camera
+          width: { min: 640, ideal: 1280, max: 1920 }, // Specify width range
+          height: { min: 480, ideal: 960, max: 1080 }, // Specify height range
+          aspectRatio: 4 / 3, // Enforce 4:3 aspect ratio
         }
-      });
+      };
+
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      
+      // Check if stream is received
+      if (!stream) {
+        throw new Error('No video stream available');
+      }
 
       // Set the video element's source object to the stream
       this.videoElement.nativeElement.srcObject = stream;
+
+      // Log the video stream for debugging
+      console.log('Video stream started successfully');
+
     } catch (err) {
-      console.error("Error accessing camera:", err);
+      console.error('Error accessing camera:', err);
+      alert('Error accessing the camera. Please check permissions and try again.');
     }
   }
 
