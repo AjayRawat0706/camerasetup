@@ -2,13 +2,10 @@
   <div class="video-wrapper">
     <video #videoElement autoplay></video>
   </div>
-
-  <div class="buttons">
+  <canvas #canvasElement style="display:none"></canvas>
+  <div>
     <button (click)="captureImage()">Capture Image</button>
     <button *ngIf="capturedImage" (click)="downloadImage()">Download Image</button>
   </div>
-
-  <div *ngIf="capturedImage" class="captured-image-container">
-    <img [src]="capturedImage" alt="Captured Image" />
-  </div>
+  <img *ngIf="capturedImage" [src]="capturedImage" alt="Captured Image" />
 </div>
