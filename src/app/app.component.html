@@ -1,17 +1,9 @@
-<div class="aspect-ratio-selector">
-  <label for="aspect-ratio">Select Aspect Ratio</label>
-  <select id="aspect-ratio" [(ngModel)]="selectedAspectRatio" (change)="updateAspectRatio()">
-    <option value="16:9">16:9</option>
-    <option value="4:3">4:3</option>
-    <option value="1:1">1:1</option>
-  </select>
-</div>
-
-<video #videoElement class="video" autoplay></video>
-
-<canvas #canvas width="640" height="480"></canvas>
-
-<div class="controls">
-  <button (click)="captureImage()">Capture</button>
-  <button (click)="downloadImage()">Download Image</button>
+<div class="camera-container">
+  <video #videoElement width="100%" height="auto" autoplay></video>
+  <canvas #canvasElement width="640" height="480"></canvas>
+  <div>
+    <button (click)="captureImage()">Capture Image</button>
+    <button *ngIf="capturedImage" (click)="downloadImage()">Download Image</button>
+  </div>
+  <img *ngIf="capturedImage" [src]="capturedImage" alt="Captured Image" />
 </div>

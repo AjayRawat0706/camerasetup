@@ -1,102 +1,74 @@
 import { FormsModule } from '@angular/forms';
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, ElementRef, ViewChild, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule,CommonModule],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit, AfterViewInit {
-  selectedAspectRatio = '16:9';
-  videoWidth: number = 640;
-  videoHeight: number = 480;
-  constraints: MediaStreamConstraints = {};
+export class AppComponent implements OnInit {
+  @ViewChild('videoElement') videoElement!: ElementRef;
+  @ViewChild('canvasElement') canvasElement!: ElementRef;
+  capturedImage: string | null = null;
+
+  constructor() {}
 
   ngOnInit(): void {
-    this.updateAspectRatio();
+    this.startCamera();
   }
 
-  ngAfterViewInit(): void {
-    this.startCamera();  // Start the camera after the view is initialized
-  }
-
-  updateAspectRatio() {
-    if (this.selectedAspectRatio === '4:3') {
-      this.constraints = { video: { aspectRatio: 4 / 3 } };
-    } else if (this.selectedAspectRatio === '16:9') {
-      this.constraints = { video: { aspectRatio: 16 / 9 } };
-    } else if (this.selectedAspectRatio === '1:1') {
-      this.constraints = { video: { aspectRatio: 1 } };
-    }
-  }
-
-  startCamera() {
-    navigator.mediaDevices
-      .getUserMedia(this.constraints)
-      .then((stream) => {
-        const videoElement = document.querySelector('video') as HTMLVideoElement;
-        videoElement.srcObject = stream;
-      })
-      .catch((err) => {
-        console.error('Error accessing camera: ', err);
+  // Start the camera and display the video stream
+  async startCamera() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: true,
       });
+      this.videoElement.nativeElement.srcObject = stream;
+    } catch (err) {
+      console.error("Error accessing camera:", err);
+    }
   }
 
+  // Capture image and maintain aspect ratio
   captureImage() {
-    const videoElement = document.querySelector('video') as HTMLVideoElement;
-    const canvas = document.querySelector('canvas') as HTMLCanvasElement;
-    const context = canvas.getContext('2d');
+    const video = this.videoElement.nativeElement;
+    const canvas = this.canvasElement.nativeElement;
+    const ctx = canvas.getContext('2d');
 
-    if (!context) {
-      console.error('Failed to get canvas context');
-      return;
+    // Set the desired aspect ratio (e.g., 4:3)
+    const aspectRatio = 4 / 3;
+    const videoWidth = video.videoWidth;
+    const videoHeight = video.videoHeight;
+
+    let width = videoWidth;
+    let height = videoWidth / aspectRatio;
+
+    if (height > videoHeight) {
+      height = videoHeight;
+      width = videoHeight * aspectRatio;
     }
 
-    const aspectRatio = this.selectedAspectRatio.split(':');
-    const width = videoElement.videoWidth;
-    const height = videoElement.videoHeight;
+    // Center the image on the canvas
+    const offsetX = (videoWidth - width) / 2;
+    const offsetY = (videoHeight - height) / 2;
 
-    let cropWidth: number = 0;
-    let cropHeight: number = 0;
+    // Draw the video frame onto the canvas
+    ctx?.drawImage(video, offsetX, offsetY, width, height, 0, 0, canvas.width, canvas.height);
 
-    // Ensure cropWidth and cropHeight are always assigned values
-    if (aspectRatio[0] === '4' && aspectRatio[1] === '3') {
-      cropWidth = width;
-      cropHeight = (width * 3) / 4;
-    } else if (aspectRatio[0] === '16' && aspectRatio[1] === '9') {
-      cropWidth = width;
-      cropHeight = (width * 9) / 16;
-    } else if (aspectRatio[0] === '1' && aspectRatio[1] === '1') {
-      cropWidth = Math.min(width, height);
-      cropHeight = cropWidth;
-    } else {
-      // Fallback if no matching aspect ratio
-      cropWidth = width;
-      cropHeight = height;
-    }
-
-    // Draw the cropped image to the canvas
-    context.clearRect(0, 0, canvas.width, canvas.height);
-    context.drawImage(
-      videoElement,
-      (width - cropWidth) / 2,
-      (height - cropHeight) / 2,
-      cropWidth,
-      cropHeight,
-      0,
-      0,
-      canvas.width,
-      canvas.height
-    );
+    // Get the image data URL
+    this.capturedImage = canvas.toDataURL('image/png');
   }
 
+  // Allow user to download the captured image
   downloadImage() {
-    const canvas = document.querySelector('canvas') as HTMLCanvasElement;
-    const link = document.createElement('a');
-    link.href = canvas.toDataURL();
-    link.download = 'captured-image.png';
-    link.click();
+    if (this.capturedImage) {
+      const a = document.createElement('a');
+      a.href = this.capturedImage;
+      a.download = 'captured-image.png';
+      a.click();
+    }
   }
 }
