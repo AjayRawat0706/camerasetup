@@ -1,6 +1,8 @@
 <div class="camera-container">
-  <video #videoElement width="100%" height="auto" autoplay></video>
-  <canvas #canvasElement width="640" height="480"></canvas>
+  <div class="video-wrapper">
+    <video #videoElement autoplay></video>
+  </div>
+  <canvas #canvasElement style="display:none"></canvas>
   <div>
     <button (click)="captureImage()">Capture Image</button>
     <button *ngIf="capturedImage" (click)="downloadImage()">Download Image</button>

@@ -27,22 +27,25 @@ export class AppComponent implements OnInit {
         video: true,
       });
       this.videoElement.nativeElement.srcObject = stream;
+      
+      // Once the video metadata is loaded, adjust the aspect ratio
+      this.videoElement.nativeElement.onloadedmetadata = () => {
+        this.adjustVideoAspectRatio();
+      };
     } catch (err) {
       console.error("Error accessing camera:", err);
     }
   }
 
-  // Capture image and maintain aspect ratio
-  captureImage() {
+  // Adjust video to fit the specified aspect ratio (e.g., 4:3)
+  adjustVideoAspectRatio() {
     const video = this.videoElement.nativeElement;
-    const canvas = this.canvasElement.nativeElement;
-    const ctx = canvas.getContext('2d');
+    const aspectRatio = 4 / 3;  // Desired aspect ratio
 
-    // Set the desired aspect ratio (e.g., 4:3)
-    const aspectRatio = 4 / 3;
     const videoWidth = video.videoWidth;
     const videoHeight = video.videoHeight;
 
+    // Calculate the desired width and height based on the aspect ratio
     let width = videoWidth;
     let height = videoWidth / aspectRatio;
 
@@ -51,12 +54,29 @@ export class AppComponent implements OnInit {
       width = videoHeight * aspectRatio;
     }
 
-    // Center the image on the canvas
+    // Set the video display size with the calculated dimensions
+    video.width = width;
+    video.height = height;
+
+    // Center the video in the container
     const offsetX = (videoWidth - width) / 2;
     const offsetY = (videoHeight - height) / 2;
 
+    video.style.objectPosition = `-${offsetX}px -${offsetY}px`; // To ensure it's centered
+  }
+
+  // Capture image while maintaining the aspect ratio
+  captureImage() {
+    const video = this.videoElement.nativeElement;
+    const canvas = this.canvasElement.nativeElement;
+    const ctx = canvas.getContext('2d');
+
+    // Set canvas width and height to match the display size of the video
+    canvas.width = video.width;
+    canvas.height = video.height;
+
     // Draw the video frame onto the canvas
-    ctx?.drawImage(video, offsetX, offsetY, width, height, 0, 0, canvas.width, canvas.height);
+    ctx?.drawImage(video, 0, 0, video.width, video.height);
 
     // Get the image data URL
     this.capturedImage = canvas.toDataURL('image/png');
