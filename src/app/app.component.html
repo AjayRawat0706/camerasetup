@@ -3,8 +3,6 @@
     <video #videoElement autoplay></video>
   </div>
 
-  <canvas #canvasElement style="display:none"></canvas>
-
   <div class="buttons">
     <button (click)="captureImage()">Capture Image</button>
     <button *ngIf="capturedImage" (click)="downloadImage()">Download Image</button>
