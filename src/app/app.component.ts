@@ -23,11 +23,14 @@ export class AppComponent implements OnInit {
   // Start the camera and display the video stream
   async startCamera() {
     try {
+      // Request the media stream for the back camera (environment-facing camera)
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: true,
+        video: { facingMode: 'environment' } // Request back camera
       });
-      this.videoElement.nativeElement.srcObject = stream;
       
+      // Set the video source to the stream from the back camera
+      this.videoElement.nativeElement.srcObject = stream;
+
       // Once the video metadata is loaded, adjust the aspect ratio
       this.videoElement.nativeElement.onloadedmetadata = () => {
         this.adjustVideoAspectRatio();
