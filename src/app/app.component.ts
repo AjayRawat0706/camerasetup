@@ -11,6 +11,7 @@ import { CommonModule } from '@angular/common';
 })
 export class AppComponent implements OnInit {
   @ViewChild('videoElement') videoElement!: ElementRef;
+  @ViewChild('canvasElement') canvasElement!: ElementRef;
   capturedImage: string | null = null;
 
   constructor() {}
@@ -19,56 +20,69 @@ export class AppComponent implements OnInit {
     this.startCamera();
   }
 
-  // Start the camera with a specified aspect ratio
+  // Start the camera and display the video stream
   async startCamera() {
     try {
-      // Request a video stream with a specific aspect ratio (4:3 for example)
-      const constraints = {
-        video: {
-          facingMode: 'environment', // Use the back camera
-          width: { min: 640, ideal: 1280, max: 1920 }, // Specify width range
-          height: { min: 480, ideal: 960, max: 1080 }, // Specify height range
-          aspectRatio: 4 / 3, // Enforce 4:3 aspect ratio
-        }
-      };
-
-      const stream = await navigator.mediaDevices.getUserMedia(constraints);
-      
-      // Check if stream is received
-      if (!stream) {
-        throw new Error('No video stream available');
-      }
-
-      // Set the video element's source object to the stream
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+      });
       this.videoElement.nativeElement.srcObject = stream;
-
-      // Log the video stream for debugging
-      console.log('Video stream started successfully');
-
+      
+      // Once the video metadata is loaded, adjust the aspect ratio
+      this.videoElement.nativeElement.onloadedmetadata = () => {
+        this.adjustVideoAspectRatio();
+      };
     } catch (err) {
-      console.error('Error accessing camera:', err);
-      alert('Error accessing the camera. Please check permissions and try again.');
+      console.error("Error accessing camera:", err);
     }
   }
 
-  // Capture the image and save it
+  // Adjust video to fit the specified aspect ratio (e.g., 4:3)
+  adjustVideoAspectRatio() {
+    const video = this.videoElement.nativeElement;
+    const aspectRatio = 4 / 3;  // Desired aspect ratio
+
+    const videoWidth = video.videoWidth;
+    const videoHeight = video.videoHeight;
+
+    // Calculate the desired width and height based on the aspect ratio
+    let width = videoWidth;
+    let height = videoWidth / aspectRatio;
+
+    if (height > videoHeight) {
+      height = videoHeight;
+      width = videoHeight * aspectRatio;
+    }
+
+    // Set the video display size with the calculated dimensions
+    video.width = width;
+    video.height = height;
+
+    // Center the video in the container
+    const offsetX = (videoWidth - width) / 2;
+    const offsetY = (videoHeight - height) / 2;
+
+    video.style.objectPosition = `-${offsetX}px -${offsetY}px`; // To ensure it's centered
+  }
+
+  // Capture image while maintaining the aspect ratio
   captureImage() {
     const video = this.videoElement.nativeElement;
-    const canvas = document.createElement('canvas');
+    const canvas = this.canvasElement.nativeElement;
     const ctx = canvas.getContext('2d');
 
-    // Set canvas dimensions based on the video element's dimensions
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
+    // Set canvas width and height to match the display size of the video
+    canvas.width = video.width;
+    canvas.height = video.height;
 
-    // Draw the current video frame to the canvas
-    ctx?.drawImage(video, 0, 0, canvas.width, canvas.height);
+    // Draw the video frame onto the canvas
+    ctx?.drawImage(video, 0, 0, video.width, video.height);
 
-    // Save the captured image as a base64 data URL
+    // Get the image data URL
     this.capturedImage = canvas.toDataURL('image/png');
   }
 
-  // Download the captured image
+  // Allow user to download the captured image
   downloadImage() {
     if (this.capturedImage) {
       const a = document.createElement('a');
@@ -77,7 +91,4 @@ export class AppComponent implements OnInit {
       a.click();
     }
   }
-  }
-  
-  
-
+}
