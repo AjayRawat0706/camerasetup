@@ -1,18 +1,15 @@
 <div class="camera-container">
-  <!-- Video wrapper for mobile -->
   <div class="video-wrapper">
     <video #videoElement autoplay></video>
   </div>
 
   <canvas #canvasElement style="display:none"></canvas>
 
-  <!-- Buttons for capturing and downloading image -->
   <div class="buttons">
     <button (click)="captureImage()">Capture Image</button>
     <button *ngIf="capturedImage" (click)="downloadImage()">Download Image</button>
   </div>
 
-  <!-- Display captured image -->
   <div *ngIf="capturedImage" class="captured-image-container">
     <img [src]="capturedImage" alt="Captured Image" />
   </div>

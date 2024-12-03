@@ -23,15 +23,12 @@ export class AppComponent implements OnInit {
   // Start the camera and display the video stream
   async startCamera() {
     try {
-      // Request the media stream for the back camera (environment-facing camera)
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment' } // Request back camera
+        video: { facingMode: 'environment' } // Use the back camera
       });
-      
-      // Set the video source to the stream from the back camera
+
       this.videoElement.nativeElement.srcObject = stream;
 
-      // Once the video metadata is loaded, adjust the aspect ratio
       this.videoElement.nativeElement.onloadedmetadata = () => {
         this.adjustVideoAspectRatio();
       };
@@ -74,12 +71,25 @@ export class AppComponent implements OnInit {
     const canvas = this.canvasElement.nativeElement;
     const ctx = canvas.getContext('2d');
 
-    // Set canvas width and height to match the display size of the video
-    canvas.width = video.width;
-    canvas.height = video.height;
+    // Get the visible width and height of the video on the screen
+    const videoWidth = video.videoWidth;
+    const videoHeight = video.videoHeight;
+    const aspectRatio = 4 / 3;
 
-    // Draw the video frame onto the canvas
-    ctx?.drawImage(video, 0, 0, video.width, video.height);
+    let visibleWidth = videoWidth;
+    let visibleHeight = videoWidth / aspectRatio;
+
+    if (visibleHeight > videoHeight) {
+      visibleHeight = videoHeight;
+      visibleWidth = videoHeight * aspectRatio;
+    }
+
+    // Set the canvas size to match the visible area of the video
+    canvas.width = visibleWidth;
+    canvas.height = visibleHeight;
+
+    // Draw only the visible area of the video onto the canvas
+    ctx?.drawImage(video, 0, 0, visibleWidth, visibleHeight, 0, 0, visibleWidth, visibleHeight);
 
     // Get the image data URL
     this.capturedImage = canvas.toDataURL('image/png');
